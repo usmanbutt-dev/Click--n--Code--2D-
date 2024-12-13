@@ -4,14 +4,18 @@ using System.Collections;
 
 [RequireComponent(typeof(AudioSource))]
 public class ButtonInteraction : MonoBehaviour {
-    public TMP_Text textObject; // Change to TMP_Text for TextMeshPro compatibility
+    public TMP_Text codeText; // Change to TMP_Text for TextMeshPro compatibility
+    public TMP_Text earnedText;
     public string codeSnippets;
     private AudioSource audioSource;
     private int currentCharIndex = 0; // Tracks the current character index
     private int lineCount = 0; // Tracks the current number of lines written
     private bool isTyping = false;
+    private int earning;
 
     void Start() {
+        earning = PlayerPrefs.GetInt("Earning");
+        earnedText.text = "Earned: $" + earning;
         audioSource = GetComponent<AudioSource>();
 
         // Initialize codeSnippets with default value if it's not set in the Inspector
@@ -30,17 +34,20 @@ public class ButtonInteraction : MonoBehaviour {
 
             // Check if the current character is the line delimiter
             if (currentChar == '~') {
-                textObject.text += "\n";
+                codeText.text += "\n";
                 lineCount++;
+                earning += 10;
 
                 // Clear text if 18 lines are written
-                if (lineCount >= 18) {
-                    textObject.text = "";
+                if (lineCount >= 15) {
+                    codeText.text = "";
                     lineCount = 0;
+                    earning += 40;
                 }
+                PlayerPrefs.SetInt("Earning", earning);
             }
             else {
-                textObject.text += currentChar;
+                codeText.text += currentChar;
             }
 
             // Move to the next character
@@ -49,8 +56,9 @@ public class ButtonInteraction : MonoBehaviour {
             // If we reach the end of the string, reset
             if (currentCharIndex >= codeSnippets.Length) {
                 currentCharIndex = 0;
-                textObject.text += "\n--- Starting Over ---\n";
+                codeText.text += "\n--- Starting Over ---\n";
             }
         }
+        earnedText.text = "Earned: $" + earning;
     }
 }
